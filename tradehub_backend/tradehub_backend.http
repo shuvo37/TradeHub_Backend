@@ -1,0 +1,6 @@
+@tradehub_backend_HostAddress = http://localhost:5108
+
+GET {{tradehub_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
