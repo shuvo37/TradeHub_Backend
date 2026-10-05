@@ -46,6 +46,13 @@ public class CommentsController : ControllerBase
         return Ok(comment);
     }
 
+    [HttpPut("comments/{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, UpdateCommentDto dto)
+    {
+        await _commentService.UpdateAsync(GetUserId(), id, dto);
+        return NoContent();
+    }
+
     [HttpDelete("comments/{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {

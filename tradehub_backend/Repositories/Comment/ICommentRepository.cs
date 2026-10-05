@@ -10,5 +10,6 @@ public interface ICommentRepository
     Task<int> CountByPostIdAsync(Guid postId);
     Task<Dictionary<Guid, int>> CountByPostIdsAsync(List<Guid> postIds);
     Task<Comment> AddAsync(Comment comment);
+    Task<bool> UpdateAsync(Comment comment);
     Task<bool> DeleteAsync(Guid id);
 }

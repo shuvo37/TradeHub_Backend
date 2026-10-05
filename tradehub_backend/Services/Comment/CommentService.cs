@@ -63,6 +63,25 @@ public class CommentService : ICommentService
         return ToDto(saved!);
     }
 
+    // Only the comment's author may edit it. The post's owner can delete a comment but not
+    // rewrite someone else's words. Anyone else gets the same 404 as a missing comment.
+    public async Task UpdateAsync(Guid userId, Guid commentId, UpdateCommentDto dto)
+    {
+        var comment = await _commentRepository.GetByIdAsync(commentId);
+
+        if (comment == null || comment.UserId != userId)
+            throw new KeyNotFoundException("Comment not found");
+
+        var text = (dto.Text ?? string.Empty).Trim();
+        if (text.Length == 0)
+            throw new ArgumentException("Comment text is required");
+
+        comment.Text = text;
+
+        if (!await _commentRepository.UpdateAsync(comment))
+            throw new KeyNotFoundException("Comment not found");
+    }
+
     public async Task DeleteAsync(Guid userId, Guid commentId)
     {
         var comment = await _commentRepository.GetByIdAsync(commentId);
