@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Enums travel as names ("Available") instead of numbers (0)
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
         // Validation errors -> { "errors": { "field": "message" } }

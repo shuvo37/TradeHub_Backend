@@ -21,14 +21,14 @@ public class PostsController : ControllerBase
     [HttpGet("user/{userId:guid}/allPost")]
     public async Task<IActionResult> GetByUser(Guid userId)
     {
-        var posts = await _postService.GetByUserAsync(userId);
+        var posts = await _postService.GetByUserAsync(GetUserId(), userId);
         return Ok(posts);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
-        var post = await _postService.GetAsync(id);
+        var post = await _postService.GetAsync(GetUserId(), id);
         return Ok(post);
     }
 

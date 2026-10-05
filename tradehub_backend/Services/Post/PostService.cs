@@ -9,28 +9,37 @@ public class PostService : IPostService
 {
     private readonly IPostRepository _postRepository;
     private readonly IProductRepository _productRepository;
+    private readonly ILikeRepository _likeRepository;
+    private readonly ICommentRepository _commentRepository;
 
-    public PostService(IPostRepository postRepository, IProductRepository productRepository)
+    public PostService(
+        IPostRepository postRepository,
+        IProductRepository productRepository,
+        ILikeRepository likeRepository,
+        ICommentRepository commentRepository)
     {
         _postRepository = postRepository;
         _productRepository = productRepository;
+        _likeRepository = likeRepository;
+        _commentRepository = commentRepository;
     }
 
-    // Any logged-in user can read a post.
-    public async Task<PostDto> GetAsync(Guid postId)
+    // Any logged-in user can read a post. viewerId decides LikedByMe.
+    public async Task<PostDto> GetAsync(Guid viewerId, Guid postId)
     {
         var post = await _postRepository.GetDetailsByIdAsync(postId);
         if (post == null)
             throw new KeyNotFoundException("Post not found");
 
-        return ToDto(post);
+        var dtos = await ToDtosAsync(new List<Post> { post }, viewerId);
+        return dtos[0];
     }
 
-    // Any logged-in user can read a user's posts, newest first.
-    public async Task<List<PostDto>> GetByUserAsync(Guid userId)
+    // Any logged-in user can read a user's posts, newest first. viewerId decides LikedByMe.
+    public async Task<List<PostDto>> GetByUserAsync(Guid viewerId, Guid userId)
     {
         var posts = await _postRepository.GetDetailsByUserIdAsync(userId);
-        return posts.Select(ToDto).ToList();
+        return await ToDtosAsync(posts, viewerId);
     }
 
     public async Task<PostDto> CreateAsync(Guid userId, CreatePostDto dto)
@@ -61,9 +70,10 @@ public class PostService : IPostService
 
         await _postRepository.AddAsync(post);
 
-        // Reload with author and product so the dto is complete
+        // Reload with author and product so the dto is complete.
+        // A brand-new post has no likes and no comments, so the counts are 0 and LikedByMe is false.
         var saved = await _postRepository.GetDetailsByIdAsync(post.Id);
-        return ToDto(saved!);
+        return ToDto(saved!, 0, 0, false);
     }
 
     public async Task UpdateTextAsync(Guid userId, Guid postId, UpdatePostDto dto)
@@ -101,7 +111,26 @@ public class PostService : IPostService
         return post;
     }
 
-    private static PostDto ToDto(Post p) => new()
+    // Builds the dtos for a whole list with 3 extra queries in total (not 3 per post).
+    // The awaits run one after another on purpose: one DbContext can't run two queries at once.
+    private async Task<List<PostDto>> ToDtosAsync(List<Post> posts, Guid viewerId)
+    {
+        var postIds = posts.Select(p => p.Id).ToList();
+
+        var likeCounts = await _likeRepository.CountByPostIdsAsync(postIds);
+        var commentCounts = await _commentRepository.CountByPostIdsAsync(postIds);
+        var likedByViewer = await _likeRepository.GetLikedPostIdsAsync(viewerId, postIds);
+
+        return posts
+            .Select(p => ToDto(
+                p,
+                likeCounts.GetValueOrDefault(p.Id),     // missing = no likes = 0
+                commentCounts.GetValueOrDefault(p.Id),  // missing = no comments = 0
+                likedByViewer.Contains(p.Id)))
+            .ToList();
+    }
+
+    private static PostDto ToDto(Post p, int likeCount, int commentCount, bool likedByMe) => new()
     {
         Id = p.Id,
         Text = p.Text,
@@ -120,6 +149,9 @@ public class PostService : IPostService
             Quantity = p.Product.Quantity,
             Status = p.Product.Status,
             Discount = p.Product.Discount ?? 0
-        }
+        },
+        LikeCount = likeCount,
+        CommentCount = commentCount,
+        LikedByMe = likedByMe
     };
 }

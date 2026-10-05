@@ -46,6 +46,17 @@ public class CommentRepository : ICommentRepository
         return await _context.Comments.CountAsync(c => c.PostId == postId);
     }
 
+    // Comment counts for many posts in ONE query.
+    // A post with no comments is simply missing from the result (the caller treats missing as 0).
+    public async Task<Dictionary<Guid, int>> CountByPostIdsAsync(List<Guid> postIds)
+    {
+        return await _context.Comments
+            .Where(c => postIds.Contains(c.PostId))
+            .GroupBy(c => c.PostId)
+            .Select(g => new { PostId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.PostId, x => x.Count);
+    }
+
     public async Task<Comment> AddAsync(Comment comment)
     {
         _context.Comments.Add(comment);

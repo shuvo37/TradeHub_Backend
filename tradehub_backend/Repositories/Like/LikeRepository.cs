@@ -47,4 +47,26 @@ public class LikeRepository : ILikeRepository
     {
         return await _context.Likes.CountAsync(l => l.PostId == postId);
     }
+
+    // Like counts for many posts in ONE query.
+    // A post with no likes is simply missing from the result (the caller treats missing as 0).
+    public async Task<Dictionary<Guid, int>> CountByPostIdsAsync(List<Guid> postIds)
+    {
+        return await _context.Likes
+            .Where(l => postIds.Contains(l.PostId))
+            .GroupBy(l => l.PostId)
+            .Select(g => new { PostId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.PostId, x => x.Count);
+    }
+
+    // Which of these posts did this user like (ONE query)
+    public async Task<HashSet<Guid>> GetLikedPostIdsAsync(Guid userId, List<Guid> postIds)
+    {
+        var likedIds = await _context.Likes
+            .Where(l => l.UserId == userId && postIds.Contains(l.PostId))
+            .Select(l => l.PostId)
+            .ToListAsync();
+
+        return likedIds.ToHashSet();
+    }
 }

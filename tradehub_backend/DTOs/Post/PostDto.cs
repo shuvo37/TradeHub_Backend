@@ -15,4 +15,8 @@ public class PostDto
     public string AuthorAvatar { get; set; } = string.Empty;
 
     public ProductDto? Product { get; set; }
+
+    public int LikeCount { get; set; }
+    public int CommentCount { get; set; }
+    public bool LikedByMe { get; set; } // did the logged-in user like this post
 }
