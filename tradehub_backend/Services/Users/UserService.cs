@@ -31,8 +31,9 @@ public class UserService : IUserService
         if (name.Length == 0) throw new ArgumentException("Name is required.");
 
         // UniqueName = name without spaces + "_" + the 3-char suffix generated at registration
+        // (same rule as AuthService, so a name with spaces doesn't turn into a login name with spaces)
         var suffix = user.UniqueName[(user.UniqueName.LastIndexOf('_') + 1)..];
-        var uniqueName = name + "_" + suffix;
+        var uniqueName = string.Concat(name.Split(' ')) + "_" + suffix;
 
         var avatar = Clean(dto.Avatar, "Avatar", 500);
 

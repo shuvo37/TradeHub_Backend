@@ -41,6 +41,24 @@ public class CommentRepository : ICommentRepository
             .ToListAsync();
     }
 
+    // Read-only, one page of a post's comments, oldest first.
+    // 'after' is the CreatedAt of the last comment the client already has (null = start from the beginning).
+    public async Task<List<Comment>> GetPageByPostIdAsync(Guid postId, DateTimeOffset? after, int take)
+    {
+        var query = _context.Comments
+            .AsNoTracking()
+            .Include(c => c.User)
+            .Where(c => c.PostId == postId);
+
+        if (after != null)
+            query = query.Where(c => c.CreatedAt > after.Value);
+
+        return await query
+            .OrderBy(c => c.CreatedAt)
+            .Take(take)
+            .ToListAsync();
+    }
+
     public async Task<int> CountByPostIdAsync(Guid postId)
     {
         return await _context.Comments.CountAsync(c => c.PostId == postId);

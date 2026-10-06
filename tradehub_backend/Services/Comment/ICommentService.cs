@@ -6,6 +6,7 @@ public interface ICommentService
 {
     Task<CommentDto> GetAsync(Guid commentId);
     Task<List<CommentDto>> GetByPostAsync(Guid postId);
+    Task<CommentPageDto> GetPageByPostAsync(Guid postId, DateTimeOffset? after);
     Task<int> CountByPostAsync(Guid postId);
     Task<CommentDto> CreateAsync(Guid userId, Guid postId, CreateCommentDto dto);
     Task UpdateAsync(Guid userId, Guid commentId, UpdateCommentDto dto);

@@ -31,6 +31,22 @@ public class CommentService : ICommentService
         return comments.Select(ToDto).ToList();
     }
 
+    // How many comments one page holds
+    private const int PageSize = 5;
+
+    // Any logged-in user can read a post's comments, one page at a time, oldest first.
+    // We ask for one extra row: if it exists there is a next page, and it is not sent to the client.
+    public async Task<CommentPageDto> GetPageByPostAsync(Guid postId, DateTimeOffset? after)
+    {
+        var rows = await _commentRepository.GetPageByPostIdAsync(postId, after, PageSize + 1);
+
+        return new CommentPageDto
+        {
+            Items = rows.Take(PageSize).Select(ToDto).ToList(),
+            HasMore = rows.Count > PageSize
+        };
+    }
+
     // Any logged-in user can read the comment count of a post.
     public async Task<int> CountByPostAsync(Guid postId)
     {

@@ -25,6 +25,13 @@ public class CommentsController : ControllerBase
         return Ok(comments);
     }
 
+    [HttpGet("comments/post/{postId:guid}/page")]
+    public async Task<IActionResult> GetPageByPost(Guid postId, [FromQuery] DateTimeOffset? after)
+    {
+        var page = await _commentService.GetPageByPostAsync(postId, after);
+        return Ok(page);
+    }
+
     [HttpGet("comments/post/{postId:guid}/count")]
     public async Task<IActionResult> CountByPost(Guid postId)
     {

@@ -7,6 +7,7 @@ public interface ICommentRepository
     Task<Comment?> GetByIdAsync(Guid id);
     Task<Comment?> GetDetailsByIdAsync(Guid id);
     Task<List<Comment>> GetDetailsByPostIdAsync(Guid postId);
+    Task<List<Comment>> GetPageByPostIdAsync(Guid postId, DateTimeOffset? after, int take);
     Task<int> CountByPostIdAsync(Guid postId);
     Task<Dictionary<Guid, int>> CountByPostIdsAsync(List<Guid> postIds);
     Task<Comment> AddAsync(Comment comment);
