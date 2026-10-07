@@ -17,6 +17,8 @@ public class TradeHubDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<Like> Likes => Set<Like>();
+    public DbSet<Friendship> Friendships => Set<Friendship>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,5 +60,49 @@ public class TradeHubDbContext : DbContext
      // A like is identified by (post, user): the same user can't like a post twice
         modelBuilder.Entity<Like>()
             .HasKey(l => new { l.PostId, l.UserId });
+
+        // A friendship links two users: the one who sent the request and the one who received it
+        modelBuilder.Entity<Friendship>()
+            .HasOne(f => f.Requester)
+            .WithMany()
+            .HasForeignKey(f => f.RequesterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Friendship>()
+            .HasOne(f => f.Addressee)
+            .WithMany()
+            .HasForeignKey(f => f.AddresseeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // The same person can't send the same person two requests
+        modelBuilder.Entity<Friendship>()
+            .HasIndex(f => new { f.RequesterId, f.AddresseeId })
+            .IsUnique();
+
+        // Finding the requests I received
+        modelBuilder.Entity<Friendship>()
+            .HasIndex(f => f.AddresseeId);
+
+        // A notification belongs to the person who sees it (recipient) and names the person who caused it (actor).
+        // If either user is deleted, the notification goes with them.
+        modelBuilder.Entity<Notification>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(n => n.RecipientId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Notification>()
+            .HasOne(n => n.Actor)
+            .WithMany()
+            .HasForeignKey(n => n.ActorId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Loading my list (newest first) and counting my unread ones
+        modelBuilder.Entity<Notification>()
+            .HasIndex(n => new { n.RecipientId, n.CreatedAt });
+
+        // Removing the "sent you a request" line when that request is answered
+        modelBuilder.Entity<Notification>()
+            .HasIndex(n => n.FriendshipId);
     }
 }
