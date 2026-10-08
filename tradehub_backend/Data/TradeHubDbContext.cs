@@ -50,6 +50,13 @@ public class TradeHubDbContext : DbContext
             .HasForeignKey(o => o.SellerId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Deleting a product keeps the order (it has its own copy of the name and price) and just clears its ProductId
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Product)
+            .WithMany()
+            .HasForeignKey(o => o.ProductId)
+            .OnDelete(DeleteBehavior.SetNull);
+
                     // Deleting a product keeps the post and just clears its ProductId
         modelBuilder.Entity<Post>()
             .HasOne(p => p.Product)
