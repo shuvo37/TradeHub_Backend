@@ -104,5 +104,9 @@ public class TradeHubDbContext : DbContext
         // Removing the "sent you a request" line when that request is answered
         modelBuilder.Entity<Notification>()
             .HasIndex(n => n.FriendshipId);
+
+        // Removing the "commented on your post" line when that comment is deleted
+        modelBuilder.Entity<Notification>()
+            .HasIndex(n => n.CommentId);
     }
 }

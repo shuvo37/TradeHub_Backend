@@ -51,4 +51,11 @@ public class NotificationRepository : INotificationRepository
             .Where(n => n.FriendshipId == friendshipId && n.Type == type)
             .ExecuteDeleteAsync();
     }
+
+    public async Task DeleteByCommentAsync(Guid commentId)
+    {
+        await _context.Notifications
+            .Where(n => n.CommentId == commentId)
+            .ExecuteDeleteAsync();
+    }
 }

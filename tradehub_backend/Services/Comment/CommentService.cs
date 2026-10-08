@@ -1,4 +1,5 @@
 using TradeHub.Dtos.Comments;
+using TradeHub.Enums;
 using TradeHub.Models;
 using TradeHub.Repositories;
 namespace TradeHub.Services;
@@ -7,11 +8,16 @@ public class CommentService : ICommentService
 {
     private readonly ICommentRepository _commentRepository;
     private readonly IPostRepository _postRepository;
+    private readonly INotificationRepository _notifications;
 
-    public CommentService(ICommentRepository commentRepository, IPostRepository postRepository)
+    public CommentService(
+        ICommentRepository commentRepository,
+        IPostRepository postRepository,
+        INotificationRepository notifications)
     {
         _commentRepository = commentRepository;
         _postRepository = postRepository;
+        _notifications = notifications;
     }
 
     // Any logged-in user can read a comment.
@@ -74,6 +80,22 @@ public class CommentService : ICommentService
 
         await _commentRepository.AddAsync(comment);
 
+        // Tell the post's owner (the bell), unless they commented on their own post
+        if (post.UserId != userId)
+        {
+            await _notifications.AddAsync(new Notification
+            {
+                Id = Guid.NewGuid(),
+                RecipientId = post.UserId,
+                ActorId = userId,
+                Type = NotificationType.PostCommented,
+                PostId = postId,
+                CommentId = comment.Id,
+                IsRead = false,
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+        }
+
         // Reload with the author so the dto has the name and avatar
         var saved = await _commentRepository.GetDetailsByIdAsync(comment.Id);
         return ToDto(saved!);
@@ -115,6 +137,9 @@ public class CommentService : ICommentService
 
         if (!await _commentRepository.DeleteAsync(commentId))
             throw new KeyNotFoundException("Comment not found");
+
+        // The bell must not point to a comment that is gone
+        await _notifications.DeleteByCommentAsync(commentId);
     }
 
     private static CommentDto ToDto(Comment c) => new()

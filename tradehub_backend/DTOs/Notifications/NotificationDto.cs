@@ -11,6 +11,8 @@ public class NotificationDto
     public string ActorName { get; set; } = string.Empty;
     public string ActorUniqueName { get; set; } = string.Empty;
     public string ActorAvatar { get; set; } = string.Empty;
+    // Only set for PostCommented: the post to open in the popup
+    public Guid? PostId { get; set; }
     public bool IsRead { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

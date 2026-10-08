@@ -13,4 +13,6 @@ public interface INotificationRepository
     Task MarkAllReadAsync(Guid userId);
     // Removes the notification(s) of one type that belong to a friend request
     Task DeleteByFriendshipAsync(Guid friendshipId, NotificationType type);
+    // Removes the notification(s) that belong to one comment (when the comment is deleted)
+    Task DeleteByCommentAsync(Guid commentId);
 }

@@ -9,7 +9,7 @@ public class Notification
 
     public Guid RecipientId { get; set; }
 
-    // The person who caused it (the one who sent or accepted the request)
+    // The person who caused it (the one who sent or accepted the request, or wrote the comment)
     public Guid ActorId { get; set; }
     public User? Actor { get; set; }
 
@@ -18,6 +18,14 @@ public class Notification
     // The friend request this is about. Used to remove the "sent you a request" line
     // when the request is answered or cancelled. Not a foreign key on purpose.
     public Guid? FriendshipId { get; set; }
+
+    // The post that was commented on (opened in the popup when the line is clicked).
+    // Not a foreign key on purpose, like FriendshipId.
+    public Guid? PostId { get; set; }
+
+    // The comment itself. Used to remove the line when that comment is deleted.
+    // Not a foreign key on purpose.
+    public Guid? CommentId { get; set; }
 
     public bool IsRead { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
