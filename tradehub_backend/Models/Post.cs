@@ -16,4 +16,9 @@ public class Post
     public List<Comment> Comments { get; set; } = new();
 
     public DateTimeOffset CreatedAt { get; set; }
+
+    // When the owner last revived this post (by editing it, or "Revive post" in the menu). null = never revived.
+    // The news feed sorts by RevivedAt when it is set, otherwise by CreatedAt.
+    // "How long ago" on the post card always uses CreatedAt.
+    public DateTimeOffset? RevivedAt { get; set; }
 }

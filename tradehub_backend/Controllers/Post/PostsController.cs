@@ -25,6 +25,15 @@ public class PostsController : ControllerBase
         return Ok(posts);
     }
 
+    // News feed: my posts and my friends' posts, newest first, 10 per page (a revived post counts from its revive time).
+    // 'before' = the nextCursor of the page the client already has (leave it out for the first page).
+    [HttpGet("feed")]
+    public async Task<IActionResult> GetFeed([FromQuery] DateTimeOffset? before)
+    {
+        var page = await _postService.GetFeedAsync(GetUserId(), before);
+        return Ok(page);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {
@@ -43,6 +52,15 @@ public class PostsController : ControllerBase
     public async Task<IActionResult> UpdateText(Guid id, UpdatePostDto dto)
     {
         await _postService.UpdateTextAsync(GetUserId(), id, dto);
+        return NoContent();
+    }
+
+    // Moves my post back to the top of the feed. Once per 24 hours per post (editing shares the same wait);
+    // too early answers 400 with the time left.
+    [HttpPut("{id:guid}/revive")]
+    public async Task<IActionResult> Revive(Guid id)
+    {
+        await _postService.ReviveAsync(GetUserId(), id);
         return NoContent();
     }
 

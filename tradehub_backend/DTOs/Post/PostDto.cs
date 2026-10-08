@@ -9,6 +9,7 @@ public class PostDto
     public string Text { get; set; } = string.Empty;
     public string Image { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? RevivedAt { get; set; } // null = never revived
 
     public Guid AuthorId { get; set; }
     public string AuthorName { get; set; } = string.Empty;

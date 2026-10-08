@@ -57,6 +57,10 @@ public class TradeHubDbContext : DbContext
             .HasForeignKey(p => p.ProductId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        // The news feed and a profile both read "posts of these users, newest first"
+        modelBuilder.Entity<Post>()
+            .HasIndex(p => new { p.UserId, p.CreatedAt });
+
      // A like is identified by (post, user): the same user can't like a post twice
         modelBuilder.Entity<Like>()
             .HasKey(l => new { l.PostId, l.UserId });
