@@ -46,6 +46,26 @@ public class FriendshipRepository : IFriendshipRepository
             .ToListAsync();
     }
 
+    // Accepted rows that I am part of (as Requester or Addressee), newest first.
+    // Both people are loaded; the service picks the one who is not me.
+    public async Task<List<Friendship>> GetAcceptedAsync(Guid userId, DateTimeOffset? before, int take)
+    {
+        var query = _context.Friendships
+            .AsNoTracking()
+            .Include(f => f.Requester)
+            .Include(f => f.Addressee)
+            .Where(f => f.Status == FriendshipStatus.Accepted &&
+                        (f.RequesterId == userId || f.AddresseeId == userId));
+
+        if (before != null)
+            query = query.Where(f => f.CreatedAt < before.Value);
+
+        return await query
+            .OrderByDescending(f => f.CreatedAt)
+            .Take(take)
+            .ToListAsync();
+    }
+
     public async Task<int> CountUnseenReceivedAsync(Guid userId)
     {
         return await _context.Friendships

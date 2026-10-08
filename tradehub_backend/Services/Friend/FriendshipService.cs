@@ -11,6 +11,8 @@ public class FriendshipService : IFriendshipService
     private readonly IUserRepository _users;
     private readonly INotificationRepository _notifications;
 
+    private const int FriendsPageSize = 10;
+
     public FriendshipService(
         IFriendshipRepository friendships,
         IUserRepository users,
@@ -68,6 +70,47 @@ public class FriendshipService : IFriendshipService
             friendship.Id));
 
         return ToStatusDto(friendship, userId);
+    }
+
+    public async Task<FriendsPageDto> GetFriendsAsync(Guid userId, DateTimeOffset? before)
+    {
+        // Ask for one extra row: if it comes back, there is a next page
+        var rows = await _friendships.GetAcceptedAsync(userId, before, FriendsPageSize + 1);
+        var page = rows.Take(FriendsPageSize).ToList();
+
+        DateTimeOffset? nextCursor = null;
+        if (page.Count > 0)
+            nextCursor = page[^1].CreatedAt;
+
+        return new FriendsPageDto
+        {
+            Items = page.Select(f =>
+            {
+                // One row covers both people: the friend is the one who is not me
+                var friend = f.RequesterId == userId ? f.Addressee! : f.Requester!;
+                return new FriendDto
+                {
+                    UserId = friend.Id,
+                    Name = friend.Name,
+                    UniqueName = friend.UniqueName,
+                    Avatar = friend.Avatar ?? string.Empty,
+                    Location = friend.Location ?? string.Empty
+                };
+            }).ToList(),
+            HasMore = rows.Count > FriendsPageSize,
+            NextCursor = nextCursor
+        };
+    }
+
+    public async Task UnfriendAsync(Guid userId, Guid otherUserId)
+    {
+        // No row, a pending request, or a stranger all get the same 404
+        var friendship = await _friendships.GetBetweenAsync(userId, otherUserId);
+        if (friendship == null || friendship.Status != FriendshipStatus.Accepted)
+            throw new KeyNotFoundException("Friend not found.");
+
+        if (!await _friendships.DeleteAsync(friendship.Id))
+            throw new KeyNotFoundException("Friend not found.");
     }
 
     public async Task<int> GetUnseenCountAsync(Guid userId)

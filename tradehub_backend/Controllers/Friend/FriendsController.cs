@@ -18,6 +18,21 @@ public class FriendsController : ControllerBase
         _friendService = friendService;
     }
 
+    // My friends, 10 per page, newest first. 'before' is the NextCursor of the previous page (omit it for the first page).
+    [HttpGet]
+    public async Task<ActionResult<FriendsPageDto>> GetFriends([FromQuery] DateTimeOffset? before)
+    {
+        return Ok(await _friendService.GetFriendsAsync(GetUserId(), before));
+    }
+
+    // Unfriend: {userId} is the other person (not a request id)
+    [HttpDelete("{userId:guid}")]
+    public async Task<IActionResult> Unfriend(Guid userId)
+    {
+        await _friendService.UnfriendAsync(GetUserId(), userId);
+        return NoContent();
+    }
+
     // How am I connected to this user? (the profile page asks this)
     [HttpGet("status/{userId:guid}")]
     public async Task<ActionResult<FriendStatusDto>> GetStatus(Guid userId)

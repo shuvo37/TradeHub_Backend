@@ -15,6 +15,8 @@ public interface IFriendshipRepository
     Task<int> CountUnseenReceivedAsync(Guid userId);
     // Marks all of this user's pending received requests as seen, in one query
     Task MarkReceivedSeenAsync(Guid userId);
+    // My accepted friendships, newest first, with both people loaded. 'before' is the CreatedAt of the last row of the previous page.
+    Task<List<Friendship>> GetAcceptedAsync(Guid userId, DateTimeOffset? before, int take);
     Task<Friendship> AddAsync(Friendship friendship);
     Task<bool> UpdateAsync(Friendship friendship);
     Task<bool> DeleteAsync(Guid id);
