@@ -26,5 +26,7 @@ public interface IOrderRepository
     // Returns false when the order is missing or was already decided (nothing changed).
     Task<bool> DecideAsync(Guid orderId, OrderStatus status);
 
+    // The seller's delete: hides the order from the seller (list and counts) but keeps the row for the buyer.
+    // Returns false when the order is missing or already hidden.
     Task<bool> DeleteAsync(Guid id);
 }

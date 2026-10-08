@@ -27,6 +27,7 @@ public class NotificationService : INotificationService
             ActorUniqueName = n.Actor.UniqueName,
             ActorAvatar = n.Actor.Avatar ?? string.Empty,
             PostId = n.PostId,
+            OrderId = n.OrderId,
             IsRead = n.IsRead,
             CreatedAt = n.CreatedAt
         }).ToList();

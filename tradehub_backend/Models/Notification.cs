@@ -27,6 +27,10 @@ public class Notification
     // Not a foreign key on purpose.
     public Guid? CommentId { get; set; }
 
+    // The order this is about (OrderAccepted / OrderRejected): opened as a summary card when the line is clicked.
+    // Not a foreign key on purpose: the line stays in the bell even if the order row is ever removed.
+    public Guid? OrderId { get; set; }
+
     public bool IsRead { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

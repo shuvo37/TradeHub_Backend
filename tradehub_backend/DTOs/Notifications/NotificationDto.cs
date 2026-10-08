@@ -13,6 +13,8 @@ public class NotificationDto
     public string ActorAvatar { get; set; } = string.Empty;
     // Only set for PostCommented: the post to open in the popup
     public Guid? PostId { get; set; }
+    // Only set for OrderAccepted / OrderRejected: the order to show in the summary card
+    public Guid? OrderId { get; set; }
     public bool IsRead { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }

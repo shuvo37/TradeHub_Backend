@@ -27,4 +27,5 @@ public class OrderDto
     public string ProofImage { get; set; } = string.Empty;
     public OrderStatus OrderStatus { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? DecidedAt { get; set; }  // null while PENDING
 }

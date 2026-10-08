@@ -40,6 +40,13 @@ public class OrdersController : ControllerBase
         return Ok(await _orderService.GetPlacedAsync(GetUserId()));
     }
 
+    // One order I placed: the buyer's summary card (opened from the bell). Only the buyer gets it.
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetPlacedById(Guid id)
+    {
+        return Ok(await _orderService.GetPlacedByIdAsync(GetUserId(), id));
+    }
+
     // Orders I received, 10 per page, newest first.
     // Optional: status=PENDING|ACCEPTED|REJECTED, phone=<part of a phone number>.
     // 'before' is the NextCursor of the previous page (omit it for the first page).

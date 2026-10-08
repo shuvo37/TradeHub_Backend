@@ -12,11 +12,16 @@ public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
+    private readonly INotificationRepository _notifications;
 
-    public OrderService(IOrderRepository orderRepository, IProductRepository productRepository)
+    public OrderService(
+        IOrderRepository orderRepository,
+        IProductRepository productRepository,
+        INotificationRepository notifications)
     {
         _orderRepository = orderRepository;
         _productRepository = productRepository;
+        _notifications = notifications;
     }
 
     // The order form calls this to show the real numbers. It runs the same checks as CreateAsync
@@ -104,6 +109,16 @@ public class OrderService : IOrderService
         return orders.Select(ToDto).ToList();
     }
 
+    public async Task<OrderDto> GetPlacedByIdAsync(Guid buyerId, Guid orderId)
+    {
+        var order = await _orderRepository.GetDetailsByIdAsync(orderId);
+
+        if (order == null || order.BuyerId != buyerId)
+            throw new KeyNotFoundException("Order not found");
+
+        return ToDto(order);
+    }
+
     private const int ReceivedPageSize = 10;
 
     public async Task<OrderPageDto> GetReceivedAsync(
@@ -153,6 +168,21 @@ public class OrderService : IOrderService
         // Rejecting also gives the stock back (done inside the repository, in one transaction)
         if (!await _orderRepository.DecideAsync(orderId, dto.OrderStatus))
             throw new ArgumentException("This order has already been decided");
+
+        // Tell the buyer. This line is only reached by the one request that really changed the status,
+        // so a double click cannot create two. It is never removed when the seller deletes the order.
+        await _notifications.AddAsync(new Notification
+        {
+            Id = Guid.NewGuid(),
+            RecipientId = order.BuyerId,
+            ActorId = sellerId,
+            Type = dto.OrderStatus == OrderStatus.ACCEPTED
+                ? NotificationType.OrderAccepted
+                : NotificationType.OrderRejected,
+            OrderId = orderId,
+            IsRead = false,
+            CreatedAt = DateTimeOffset.UtcNow
+        });
     }
 
     public async Task DeleteAsync(Guid sellerId, Guid orderId)
@@ -236,7 +266,8 @@ public class OrderService : IOrderService
     {
         var order = await _orderRepository.GetByIdAsync(orderId);
 
-        if (order == null || order.SellerId != sellerId)
+        // An order the seller already deleted is gone for the seller (it only stays for the buyer)
+        if (order == null || order.SellerId != sellerId || order.DeletedBySeller)
             throw new KeyNotFoundException("Order not found");
 
         return order;
@@ -265,6 +296,7 @@ public class OrderService : IOrderService
         TransactionId = o.TransactionId ?? string.Empty,
         ProofImage = o.ProofImage ?? string.Empty,
         OrderStatus = o.OrderStatus,
-        CreatedAt = o.CreatedAt
+        CreatedAt = o.CreatedAt,
+        DecidedAt = o.DecidedAt
     };
 }

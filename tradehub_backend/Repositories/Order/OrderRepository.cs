@@ -36,7 +36,7 @@ public class OrderRepository : IOrderRepository
     public async Task<List<Order>> GetReceivedPageAsync(
         Guid sellerId, OrderStatus? status, string? phone, DateTimeOffset? before, int take)
     {
-        var query = WithDetails().Where(o => o.SellerId == sellerId);
+        var query = WithDetails().Where(o => o.SellerId == sellerId && !o.DeletedBySeller);
 
         if (status != null)
             query = query.Where(o => o.OrderStatus == status.Value);
@@ -60,7 +60,7 @@ public class OrderRepository : IOrderRepository
     {
         return await _context.Orders
             .AsNoTracking()
-            .Where(o => o.SellerId == sellerId)
+            .Where(o => o.SellerId == sellerId && !o.DeletedBySeller)
             .GroupBy(o => o.OrderStatus)
             .Select(g => new { Status = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.Status, x => x.Count);
@@ -108,9 +108,13 @@ public class OrderRepository : IOrderRepository
 
         // Only a PENDING order can be decided. Two quick clicks cannot both succeed:
         // the second one finds the order already decided and changes zero rows.
+        var decidedAt = (DateTimeOffset?)DateTimeOffset.UtcNow;
+
         var changed = await _context.Orders
             .Where(o => o.Id == orderId && o.OrderStatus == OrderStatus.PENDING)
-            .ExecuteUpdateAsync(s => s.SetProperty(o => o.OrderStatus, status));
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(o => o.OrderStatus, status)
+                .SetProperty(o => o.DecidedAt, decidedAt));
 
         if (changed == 0)
             return false;
@@ -137,11 +141,11 @@ public class OrderRepository : IOrderRepository
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var existing = await _context.Orders.FindAsync(id);
-        if (existing == null) return false;
+        // Not a real delete: the buyer still needs the order (and the seller's decision) as proof
+        var changed = await _context.Orders
+            .Where(o => o.Id == id && !o.DeletedBySeller)
+            .ExecuteUpdateAsync(s => s.SetProperty(o => o.DeletedBySeller, true));
 
-        _context.Orders.Remove(existing);
-        await _context.SaveChangesAsync();
-        return true;
+        return changed > 0;
     }
 }

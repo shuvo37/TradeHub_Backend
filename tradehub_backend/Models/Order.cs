@@ -36,4 +36,12 @@ public class Order
 
     public OrderStatus OrderStatus { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+
+    // When the seller accepted or rejected the order (server time). Null while it is PENDING.
+    // The buyer's summary card shows it as proof of the seller's decision.
+    public DateTimeOffset? DecidedAt { get; set; }
+
+    // The seller "deleted" the order: it disappears from the seller's list and counts, but the row stays,
+    // because the buyer keeps it as proof of what the seller decided.
+    public bool DeletedBySeller { get; set; }
 }
