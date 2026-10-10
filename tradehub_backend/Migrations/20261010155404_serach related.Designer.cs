@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TradeHub.Data;
@@ -11,9 +12,11 @@ using TradeHub.Data;
 namespace tradehub_backend.Migrations
 {
     [DbContext(typeof(TradeHubDbContext))]
-    partial class TradeHubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261010155404_serach related")]
+    partial class serachrelated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

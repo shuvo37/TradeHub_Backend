@@ -19,6 +19,7 @@ public class TradeHubDbContext : DbContext
     public DbSet<Like> Likes => Set<Like>();
     public DbSet<Friendship> Friendships => Set<Friendship>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<SearchHistory> SearchHistories => Set<SearchHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -119,5 +120,26 @@ public class TradeHubDbContext : DbContext
         // Removing the "commented on your post" line when that comment is deleted
         modelBuilder.Entity<Notification>()
             .HasIndex(n => n.CommentId);
+
+        // A search text is identified by (user, text): the same user searching it again does not add a row
+        modelBuilder.Entity<SearchHistory>()
+            .HasKey(s => new { s.UserId, s.Term });
+
+        modelBuilder.Entity<SearchHistory>()
+            .Property(s => s.Term)
+            .HasMaxLength(60);
+
+        // If the user is deleted, their searches go with them
+        modelBuilder.Entity<SearchHistory>()
+            .HasOne(s => s.User)
+            .WithMany()
+            .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // "Texts that start with 'tri'" for all users. text_pattern_ops makes a normal index usable for LIKE 'tri%'
+        // whatever the database collation is: this index does the job of the trie.
+        modelBuilder.Entity<SearchHistory>()
+            .HasIndex(s => s.Term)
+            .HasOperators("text_pattern_ops");
     }
 }
