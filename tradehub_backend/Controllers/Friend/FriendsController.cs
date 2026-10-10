@@ -12,10 +12,12 @@ namespace TradeHub.Controllers;
 public class FriendsController : ControllerBase
 {
     private readonly IFriendshipService _friendService;
+    private readonly ISuggestionService _suggestionService;
 
-    public FriendsController(IFriendshipService friendService)
+    public FriendsController(IFriendshipService friendService, ISuggestionService suggestionService)
     {
         _friendService = friendService;
+        _suggestionService = suggestionService;
     }
 
     // My friends, 10 per page, newest first. 'before' is the NextCursor of the previous page (omit it for the first page).
@@ -23,6 +25,13 @@ public class FriendsController : ControllerBase
     public async Task<ActionResult<FriendsPageDto>> GetFriends([FromQuery] DateTimeOffset? before)
     {
         return Ok(await _friendService.GetFriendsAsync(GetUserId(), before));
+    }
+
+    // "People you may know": up to 10 people, best score first (no paging: a score has no timestamp to continue from)
+    [HttpGet("suggestions")]
+    public async Task<ActionResult<List<UserSuggestionDto>>> GetSuggestions()
+    {
+        return Ok(await _suggestionService.GetSuggestionsAsync(GetUserId()));
     }
 
     // Unfriend: {userId} is the other person (not a request id)
