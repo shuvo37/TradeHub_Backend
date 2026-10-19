@@ -71,6 +71,67 @@ namespace tradehub_backend.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("TradeHub.Models.EmailCode", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Purpose")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "Purpose");
+
+                    b.ToTable("EmailCodes");
+                });
+
+            modelBuilder.Entity("TradeHub.Models.EmailCodeSend", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<int>("Purpose")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email", "Purpose", "SentAt");
+
+                    b.HasIndex("UserId", "Purpose", "SentAt");
+
+                    b.ToTable("EmailCodeSends");
+                });
+
             modelBuilder.Entity("TradeHub.Models.Friendship", b =>
                 {
                     b.Property<Guid>("Id")
@@ -419,6 +480,24 @@ namespace tradehub_backend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("TradeHub.Models.UserContactEmail", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("ContactEmails");
+                });
+
             modelBuilder.Entity("TradeHub.Models.Category", b =>
                 {
                     b.HasOne("TradeHub.Models.User", "User")
@@ -445,6 +524,28 @@ namespace tradehub_backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TradeHub.Models.EmailCode", b =>
+                {
+                    b.HasOne("TradeHub.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TradeHub.Models.EmailCodeSend", b =>
+                {
+                    b.HasOne("TradeHub.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -571,6 +672,17 @@ namespace tradehub_backend.Migrations
                 });
 
             modelBuilder.Entity("TradeHub.Models.SearchHistory", b =>
+                {
+                    b.HasOne("TradeHub.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TradeHub.Models.UserContactEmail", b =>
                 {
                     b.HasOne("TradeHub.Models.User", "User")
                         .WithMany()

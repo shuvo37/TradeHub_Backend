@@ -20,6 +20,9 @@ public class TradeHubDbContext : DbContext
     public DbSet<Friendship> Friendships => Set<Friendship>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<SearchHistory> SearchHistories => Set<SearchHistory>();
+    public DbSet<UserContactEmail> ContactEmails => Set<UserContactEmail>();
+    public DbSet<EmailCode> EmailCodes => Set<EmailCode>();
+    public DbSet<EmailCodeSend> EmailCodeSends => Set<EmailCodeSend>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -141,5 +144,56 @@ public class TradeHubDbContext : DbContext
         modelBuilder.Entity<SearchHistory>()
             .HasIndex(s => s.Term)
             .HasOperators("text_pattern_ops");
+
+        // One contact email per user (the key is the user id). Many users may share the same email, so no unique index on it.
+        modelBuilder.Entity<UserContactEmail>()
+            .HasKey(c => c.UserId);
+
+        modelBuilder.Entity<UserContactEmail>()
+            .Property(c => c.Email)
+            .HasMaxLength(254);
+
+        // If the user is deleted, their contact email goes with them
+        modelBuilder.Entity<UserContactEmail>()
+            .HasOne(c => c.User)
+            .WithMany()
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // The active confirmation code: one per user and purpose (a new code replaces the old row).
+        // The purpose is stored as an integer, like the other enums.
+        modelBuilder.Entity<EmailCode>()
+            .HasKey(c => new { c.UserId, c.Purpose });
+
+        modelBuilder.Entity<EmailCode>()
+            .Property(c => c.Email)
+            .HasMaxLength(254);
+
+        modelBuilder.Entity<EmailCode>()
+            .Property(c => c.CodeHash)
+            .HasMaxLength(100); // a bcrypt hash is 60 characters
+
+        modelBuilder.Entity<EmailCode>()
+            .HasOne(c => c.User)
+            .WithMany()
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // The send log, only for the limits: the wait between codes, and the codes per hour for an account / an address
+        modelBuilder.Entity<EmailCodeSend>()
+            .Property(s => s.Email)
+            .HasMaxLength(254);
+
+        modelBuilder.Entity<EmailCodeSend>()
+            .HasIndex(s => new { s.UserId, s.Purpose, s.SentAt });
+
+        modelBuilder.Entity<EmailCodeSend>()
+            .HasIndex(s => new { s.Email, s.Purpose, s.SentAt });
+
+        modelBuilder.Entity<EmailCodeSend>()
+            .HasOne(s => s.User)
+            .WithMany()
+            .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -1,7 +1,9 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TradeHub.Data;
@@ -70,6 +72,17 @@ builder.Services.AddScoped<ISearchRepository, SearchRepository>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IContactEmailRepository, ContactEmailRepository>();
+builder.Services.AddScoped<IContactEmailService, ContactEmailService>();
+builder.Services.AddScoped<IEmailCodeRepository, EmailCodeRepository>();
+builder.Services.AddScoped<IEmailCodeService, EmailCodeService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+
+// Mail: Gmail SMTP. The real values (Email:Username, Email:Password) live in user-secrets, not in git.
+// To use another provider, write a class that implements IEmailSender and change the line below.
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+builder.Services.AddSingleton<IEmailDomainChecker, DnsEmailDomainChecker>();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
 builder.Services.AddSingleton<IImageService, ImageService>();
@@ -92,6 +105,28 @@ builder.Services
         };
     });
 builder.Services.AddAuthorization();
+
+// The password reset endpoints need no login and can send mail, so each IP address gets only a few calls
+// (the code rules in EmailCodeService limit codes per account and per address on top of this).
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("PasswordReset", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0
+            }));
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new { message = "Too many attempts. Try again in a few minutes." }, cancellationToken);
+    };
+});
 
 builder.Services.AddCors(options =>
 {
@@ -116,6 +151,7 @@ else
 }
 
 app.UseCors("NextJsDev");
+app.UseRateLimiter(); // after UseCors, so a refused call still carries the CORS headers
 app.UseAuthentication();
 app.UseAuthorization();
 
