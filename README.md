@@ -1,8 +1,8 @@
 # TradeHub
 
-TradeHub is a social-media-style marketplace. Every user is both a buyer and a seller: you post products to your own store, follow what others post, like and comment, and place orders.
-
-There is no in-app chat and no in-app payment. A seller shows their bKash / Nagad details as text, and the buyer either submits a transaction ID / screenshot or chooses cash on delivery.
+TradeHub is a full-stack social-commerce platform where users can create storefronts, organize products, promote them
+through social posts, and trade with other users. Buyers can place orders using cash-on-delivery or prepaid payment
+methods, while sellers manage inventory and accept or reject incoming orders
 
 ## Repositories
 
