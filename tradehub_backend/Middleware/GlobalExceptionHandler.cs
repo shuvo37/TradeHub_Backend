@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics;
+using TradeHub.Services;
 
 namespace TradeHub.Middleware;
 
@@ -18,6 +19,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         {
             ArgumentException ex    => (StatusCodes.Status400BadRequest, ex.Message),
             KeyNotFoundException ex => (StatusCodes.Status404NotFound, ex.Message),
+            AiUnavailableException ex => (StatusCodes.Status503ServiceUnavailable, ex.Message),
             _                       => (StatusCodes.Status500InternalServerError,
                                         "Something went wrong"),
         };

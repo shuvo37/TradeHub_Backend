@@ -87,6 +87,12 @@ builder.Services.AddSingleton<IEmailDomainChecker, DnsEmailDomainChecker>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
 builder.Services.AddSingleton<IImageService, ImageService>();
 
+// AI assistant (Gemini). The key lives in user-secrets: dotnet user-secrets set "Gemini:ApiKey" "<key>"
+builder.Services.Configure<GeminiSettings>(builder.Configuration.GetSection("Gemini"));
+builder.Services.AddScoped<AnalystTools>();
+builder.Services.AddHttpClient<IAiAnalystService, AiAnalystService>(client =>
+    client.Timeout = TimeSpan.FromSeconds(60));
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -120,6 +126,18 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(10),
                 QueueLimit = 0
             }));
+
+    // Every AI question costs a Gemini call, so each logged-in user gets a limited number per minute.
+    options.AddPolicy("Ai", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 15,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            }));
     options.OnRejected = async (context, cancellationToken) =>
     {
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
@@ -151,8 +169,8 @@ else
 }
 
 app.UseCors("NextJsDev");
-app.UseRateLimiter(); // after UseCors, so a refused call still carries the CORS headers
 app.UseAuthentication();
+app.UseRateLimiter(); // after UseCors (a refused call still carries the CORS headers) and after UseAuthentication (the "Ai" policy counts per user)
 app.UseAuthorization();
 
 app.MapControllers();
