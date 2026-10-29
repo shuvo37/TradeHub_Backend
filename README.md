@@ -14,7 +14,7 @@ There is no in-app chat and no online payment gateway. A seller shows a bKash / 
   - [Prerequisites](#prerequisites)
   - [1. Run the backend](#1-run-the-backend)
   - [2. Run the frontend](#2-run-the-frontend)
-- [Roadmap](#roadmap)
+- [Future Work](#futurework)
 - [Author](#author)
 
 ## Repositories
@@ -122,7 +122,7 @@ The backend only accepts requests from http://localhost:3000.
 
 ## Roadmap
 
-- Smarter recommendations (friends and content)
+- more Smarter recommendations (friends and content)
 
 ## Author
 
