@@ -120,7 +120,7 @@ Then start the app and open http://localhost:3000:
 
 The backend only accepts requests from http://localhost:3000.
 
-## Roadmap
+## Future Work
 
 - more Smarter recommendations (friends and content)
 
