@@ -122,7 +122,7 @@ The backend only accepts requests from http://localhost:3000.
 
 ## Future Work
 
-- more Smarter recommendations (friends and content)
+- More Smarter recommendations (friends and content)
 
 ## Author
 
