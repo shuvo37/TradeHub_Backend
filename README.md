@@ -4,6 +4,26 @@ TradeHub is a social-media-style marketplace. Every user has a personal store an
 
 There is no in-app chat and no online payment gateway. A seller shows a bKash / Nogod number, and the buyer either pays before delivery (transaction ID or screenshot) or chooses cash on delivery.
 
+## Table of Contents
+
+- [Screenshots](#screenshots)
+- [Repositories](#repositories)
+- [Features](#features)
+- [Backend Architecture](#backend-architecture)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [1. Run the backend](#1-run-the-backend)
+  - [2. Run the frontend](#2-run-the-frontend)
+- [Roadmap](#roadmap)
+- [Author](#author)
+
+## Screenshots
+
+<table>
+<tr><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112603.png" width="190" alt="AI assistant"><br><sub>AI assistant</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112621.png" width="190" alt="Orders list"><br><sub>Orders list with filters</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112639.png" width="190" alt="Order details"><br><sub>Order details (seller)</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20113238.png" width="190" alt="Product details"><br><sub>Product details</sub></td></tr>
+<tr><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20113335.png" width="190" alt="Edit product"><br><sub>Edit product</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112714.png" width="150" alt="Profile"><br><sub>Profile</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112735.png" width="150" alt="My Store"><br><sub>My Store</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112757.png" width="190" alt="Post with product"><br><sub>Post with attached product</sub><br><br><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112828.png" width="190" alt="Post box"><br><sub>Post box</sub><br><br><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112700.png" width="190" alt="Notifications"><br><sub>Notifications</sub></td></tr>
+</table>
+
 ## Repositories
 
 | Part | Repository | Stack |
