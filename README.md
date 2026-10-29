@@ -6,9 +6,9 @@ There is no in-app chat and no online payment gateway. A seller shows a bKash / 
 
 ## Table of Contents
 
-- [Screenshots](#screenshots)
 - [Repositories](#repositories)
 - [Features](#features)
+- [Screenshots](#screenshots)
 - [Backend Architecture](#backend-architecture)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
@@ -16,13 +16,6 @@ There is no in-app chat and no online payment gateway. A seller shows a bKash / 
   - [2. Run the frontend](#2-run-the-frontend)
 - [Roadmap](#roadmap)
 - [Author](#author)
-
-## Screenshots
-
-<table>
-<tr><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112603.png" width="190" alt="AI assistant"><br><sub>AI assistant</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112621.png" width="190" alt="Orders list"><br><sub>Orders list with filters</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112639.png" width="190" alt="Order details"><br><sub>Order details (seller)</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20113238.png" width="190" alt="Product details"><br><sub>Product details</sub></td></tr>
-<tr><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20113335.png" width="190" alt="Edit product"><br><sub>Edit product</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112714.png" width="150" alt="Profile"><br><sub>Profile</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112735.png" width="150" alt="My Store"><br><sub>My Store</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112757.png" width="190" alt="Post with product"><br><sub>Post with attached product</sub><br><br><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112828.png" width="190" alt="Post box"><br><sub>Post box</sub><br><br><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112700.png" width="190" alt="Notifications"><br><sub>Notifications</sub></td></tr>
-</table>
 
 ## Repositories
 
@@ -63,6 +56,13 @@ External services: Google Gemini (AI assistant), Cloudinary (images), Gmail SMTP
 - Only sees your own business data, never other users' contact or payment details
 - Powered by Google Gemini with function calling; the server runs read-only tools against the database, and the chat history is kept in the browser, not saved on the server
 - Rate limited to 15 questions per minute per user
+
+## Screenshots
+
+<table>
+<tr><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112603.png" width="190" alt="AI assistant"><br><sub>AI assistant</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112621.png" width="190" alt="Orders list"><br><sub>Orders list with filters</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112639.png" width="190" alt="Order details"><br><sub>Order details (seller)</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20113238.png" width="190" alt="Product details"><br><sub>Product details</sub></td></tr>
+<tr><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20113335.png" width="190" alt="Edit product"><br><sub>Edit product</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112714.png" width="150" alt="Profile"><br><sub>Profile</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112735.png" width="150" alt="My Store"><br><sub>My Store</sub></td><td align="center" valign="top"><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112757.png" width="190" alt="Post with product"><br><sub>Post with attached product</sub><br><br><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112828.png" width="190" alt="Post box"><br><sub>Post box</sub><br><br><img src="https://raw.githubusercontent.com/shuvo37/tradehub-assests/main/Screenshot%202026-10-29%20112700.png" width="190" alt="Notifications"><br><sub>Notifications</sub></td></tr>
+</table>
 
 ## Backend Architecture
 
